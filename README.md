@@ -189,6 +189,21 @@ g++ benchmark.cc -o a.out -std=c++20 -ljsoncpp -O2
 | 126,600.00   | 7,898.89 | 1.4% | 1,208,389.00 | 379,875.00   | 3.181 | 267,827.00   | 1.2%  | 0.01  | `jsoncpp`            |
 | 1,043,500.00 | 958.31   | 0.6% | 7,616,955.00 | 3,087,250.00 | 2.467 | 1,243,863.00 | 0.5%  | 0.01  | `nlohmann_json       |
 
+```cpp
+// 测试指标各字段含义
+/**
+ns/op：每个bench内容需要经历的时间（ns为单位）。
+op/s：每秒可以执行多少次操作。
+err%：运行多次测试的波动情况（误差）。
+ins/op：每次操作需要多少条指令。
+cyc/op：每次操作需要多少次时钟周期。
+bra/op：每次操作有多少次分支预判。
+miss%：分支预判的miss率。
+total：本次消耗的总时间。
+benchmark：对应的名字
+*/
+```
+
 可见在-O2优化选项上，本parser相较于其他paser具有更好好的性能。
 
 ### Build
@@ -208,9 +223,9 @@ Options:
 ```
 
 ```bash
-./build.sh -d my_build_dir // 该命令会将构建目录设置为 my_build_dir（默认为 build)。
+./build.sh -d my_build_dir // 该命令会将构建目录设置为 my_build_dir(默认为 build)。
 
-./build.sh -t Release     // 该命令会将 BUILD_TYPE 设置为 Release，(默认为DEBUG)。
+./build.sh -t Release     // 该命令会将 BUILD_TYPE 设置为 Release(默认为DEBUG)。
 
 ./build.sh -o			// 开启O2优化 默认为不开优化
 ```
