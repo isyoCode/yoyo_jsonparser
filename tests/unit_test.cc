@@ -203,6 +203,32 @@ TEST_CASE("testing the json parser") {
   CHECK(company_financials_revenue_implicit() == true);
   CHECK(company_is_publicly_traded_implicit() == true);
 
+  // 测试显式转换
+  auto company_location_explicit = [&jValue]() -> bool {
+    auto city = jValue["company"]["location"]["city"].asString();
+    return city == "New York";
+  };
+
+  auto company_employees_id_explicit = [&jValue]() -> bool {
+    auto id = jValue["company"]["employees"][0]["id"].asInt();
+    return id == 1;
+  };
+
+  auto company_financials_revenue_explicit = [&jValue]() -> bool {
+    auto revenue = jValue["company"]["financials"]["revenue"].asDouble();
+    return revenue == 1000000.00;
+  };
+
+  auto company_is_publicly_traded_explicit = [&jValue]() -> bool {
+    auto isPubliclyTraded = jValue["company"]["is_publicly_traded"].asBool();
+    return isPubliclyTraded == true;
+  };
+
+  CHECK(company_location_explicit() == true);
+  CHECK(company_employees_id_explicit() == true);
+  CHECK(company_financials_revenue_explicit() == true);
+  CHECK(company_is_publicly_traded_explicit() == true);
+
   // 测试打印
   auto print_json_string = [&jValue]() -> bool {
     // yoyo::PrintJson(jValue);

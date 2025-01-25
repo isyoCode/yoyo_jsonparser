@@ -5,7 +5,9 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -141,13 +143,30 @@ class JsonFiled {
   bool isObject() const noexcept { return getType() == JSONTYPE::JSON_OBJECT; }
   bool isString() const noexcept { return getType() == JSONTYPE::JSON_STRING; }
   bool isNull() const noexcept { return getType() == JSONTYPE::JSON_NULL; }
+
+  json_int asInt() const { return static_cast<json_int>(get<json_int>()); }
+  json_double asDouble() const {
+    return static_cast<json_double>(get<json_double>());
+  }
+  json_bool asBool() const { return static_cast<json_bool>(get<json_bool>()); }
+  json_string asString() const {
+    return static_cast<json_string>(get<json_string>());
+  }
+  json_array asArray() const {
+    return static_cast<json_array>(get<json_array>());
+  }
+  json_object asObject() const {
+    return static_cast<json_object>(get<json_object>());
+  }
   template <class T>
   bool isMember(T&& key) const {
     if constexpr (std::is_same_v<std::decay_t<T>, std::string> ||
-                  std::is_same_v<std::decay_t<T>, const char*>) {
+                  std::is_same_v<std::decay_t<T>, const char*> ||
+                  std::is_same_v<std::decay_t<T>, std::string_view>) {
       if (!isObject()) return false;
       const json_object& tObject = get<json_object>();
-      return static_cast<bool>(tObject.find(key) != tObject.end());
+      return static_cast<bool>(tObject.find(std::forward<T>(key)) !=
+                               tObject.end());
     } else {
       return false;
     }
@@ -213,7 +232,11 @@ class JsonFiled {
     if (isObject()) return get<json_object>().size();
     return get<json_array>().size();
   }
-
+  bool isEmpty() const {
+    if (isObject()) return get<json_object>().empty();
+    if (isArray()) return get<json_array>().empty();
+    return false;
+  }
   JsonFiled& operator[](const std::string& sKey) {
     if (!isObject())
       throw std::logic_error("Current object is not k-v obj, invalid type");
