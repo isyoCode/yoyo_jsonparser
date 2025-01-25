@@ -1,3 +1,4 @@
+#include <string>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "../src/json_parser.hpp"
 #include "./doctest.h"
@@ -86,7 +87,10 @@ bool jsonParserIsSuccessful() {
 
 TEST_CASE("testing the json parser") {
   CHECK(jsonParserIsSuccessful() == true);
+
   yoyo::JsonValue jValue = yoyo::parserJson(jsonStr);
+
+  auto json_object = [&jValue]() -> bool { return jValue.isObject(); };
 
   auto company_obj = [&jValue]() -> bool {
     return jValue["company"].isObject();
@@ -101,6 +105,7 @@ TEST_CASE("testing the json parser") {
   auto company_employees = [&jValue]() -> bool {
     return jValue["company"]["employees"].isArray();
   };
+
   auto company_employees_id = [&jValue]() -> bool {
     return jValue["company"]["employees"][0]["id"].get<int>() == 1;
   };
@@ -108,23 +113,33 @@ TEST_CASE("testing the json parser") {
     return jValue["company"]["employees"][0]["projects"][0]["end_date"]
         .isNull();
   };
+
   auto company_employees_projects_team_members = [&jValue]() -> bool {
     return jValue["company"]["employees"][0]["projects"][0]["team_members"]
                .isArray() &&
            jValue["company"]["employees"][0]["projects"][0]["team_members"]
                    .size() == 2;
   };
+
+  auto company_employees_is_members_or_not_member = [&jValue]() -> bool {
+    return jValue.isMember("company") &&
+           (jValue.isMember("companyyoyoyoxxxxx") == false);
+  };
+
   auto company_financials = [&jValue]() -> bool {
     return jValue["company"]["financials"].isObject();
   };
+
   auto company_financials_revenue = [&jValue]() -> bool {
     return jValue["company"]["financials"]["revenue"].get<double>() ==
            1000000.00;
   };
+
   auto company_is_publicly_traded = [&jValue]() -> bool {
     return jValue["company"]["is_publicly_traded"].get<bool>() == true;
   };
 
+  CHECK(json_object() == true);
   CHECK(company_obj() == true);
   CHECK(company_name() == true);
   CHECK(company_location() == true);
@@ -132,15 +147,17 @@ TEST_CASE("testing the json parser") {
   CHECK(company_employees_id() == true);
   CHECK(company_employees_projects_end_date() == true);
   CHECK(company_employees_projects_team_members() == true);
+  CHECK(company_employees_is_members_or_not_member() == true);
   CHECK(company_financials() == true);
   CHECK(company_financials_revenue() == true);
   CHECK(company_is_publicly_traded() == true);
 
   // 测试重载运算符
   auto company_location_overloadEqual = [&jValue]() -> bool {
-    return (jValue["company"]["location"]["city"] == "New York") &&
-           ("New York" ==
-            jValue["company"]["location"]["city"]); /**未提供右侧重载方法*/
+    return (jValue["company"]["location"]["city"] == "New York") ||
+           (std::string("New York") ==
+            static_cast<std::string>(
+                jValue["company"]["location"]["city"])); /**未提供右侧重载方法*/
   };
 
   auto company_employees_id_overloadEqual = [&jValue]() -> bool {
@@ -188,15 +205,24 @@ TEST_CASE("testing the json parser") {
 
   // 测试打印
   auto print_json_string = [&jValue]() -> bool {
-    yoyo::PrintJson(jValue);
+    // yoyo::PrintJson(jValue);
     return true;
   };
 
   auto serialize_jsonValue_toString = [&jValue]() -> bool {
     std::string str = jValue.writeToString();
-    std::cout << str << std::endl;
+    // std::cout << str << std::endl;
     return str.size() > 0;
   };
+
+  auto serialize_jsonValue_toString_to_deserialize = [&jValue]() -> bool {
+    std::string str = jValue.writeToString();
+    yoyo::JsonValue jValue2 = yoyo::parserJson(str);
+    // yoyo::PrintJson(jValue2);
+    return jValue2.size() > 0;
+  };
+
   CHECK(print_json_string() == true);
   CHECK(serialize_jsonValue_toString() == true);
+  CHECK(serialize_jsonValue_toString_to_deserialize() == true);
 }

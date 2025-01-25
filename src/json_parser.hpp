@@ -141,6 +141,17 @@ class JsonFiled {
   bool isObject() const noexcept { return getType() == JSONTYPE::JSON_OBJECT; }
   bool isString() const noexcept { return getType() == JSONTYPE::JSON_STRING; }
   bool isNull() const noexcept { return getType() == JSONTYPE::JSON_NULL; }
+  template <class T>
+  bool isMember(T&& key) const {
+    if constexpr (std::is_same_v<std::decay_t<T>, std::string> ||
+                  std::is_same_v<std::decay_t<T>, const char*>) {
+      if (!isObject()) return false;
+      const json_object& tObject = get<json_object>();
+      return static_cast<bool>(tObject.find(key) != tObject.end());
+    } else {
+      return false;
+    }
+  }
 
   // 重载类型转换操作符
   operator int() const {
@@ -330,6 +341,7 @@ class JsonFiled {
     result += "}";
     return result;
   }
+  friend std::ostream& operator<<(std::ostream& os, const JsonFiled& jsonField);
 
  private:
   jValueType _jType;
@@ -565,7 +577,7 @@ class JsonParser {
       throw JsonParseError("Unexpected end of input during object parsing",
                            currentDepth);
     }
-    if (_jsonstring[_iIndex] == '}') {
+    if (getNextToken() == '}') {
       _iIndex++;                             // 跳过 '}'
       return JsonFiled(std::move(mJvalue));  // 空对象
     }
@@ -604,8 +616,15 @@ class JsonParser {
  private:
   std::string _jsonstring;
   size_t _iIndex;
-  constexpr static size_t _iMaxDepth{128};  // 暂定写死
+  constexpr static size_t _iMaxDepth{64};  // 暂定写死
 };
+
+// 重载输出流操作符 friend std::ostream& operator<<(std::ostream& os, const
+// JsonFiled& jsonField);
+inline std::ostream& operator<<(std::ostream& os, const JsonFiled& jsonField) {
+  os << jsonField.writeToString();
+  return os;
+}
 
 // 封装一个解析方法
 using JsonValue = JsonFiled;
