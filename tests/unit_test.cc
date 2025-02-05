@@ -87,9 +87,7 @@ bool jsonParserIsSuccessful() {
 
 TEST_CASE("testing the json parser") {
   CHECK(jsonParserIsSuccessful() == true);
-
   yoyo::JsonValue jValue = yoyo::parserJson(jsonStr);
-
   auto json_object = [&jValue]() -> bool { return jValue.isObject(); };
 
   auto company_obj = [&jValue]() -> bool {
@@ -151,8 +149,11 @@ TEST_CASE("testing the json parser") {
   CHECK(company_financials() == true);
   CHECK(company_financials_revenue() == true);
   CHECK(company_is_publicly_traded() == true);
+}
 
-  // 测试重载运算符
+// 测试操作符重载
+TEST_CASE("testing Operator overloading") {
+  yoyo::JsonValue jValue = yoyo::parserJson(jsonStr);
   auto company_location_overloadEqual = [&jValue]() -> bool {
     return (jValue["company"]["location"]["city"] == "New York") ||
            (std::string("New York") ==
@@ -176,8 +177,11 @@ TEST_CASE("testing the json parser") {
   CHECK(company_employees_id_overloadEqual() == true);
   CHECK(company_financials_revenue_overloadEqual() == true);
   CHECK(company_is_publicly_traded_overloadEqual() == true);
+}
 
-  // 测试隐式转换
+// 测试隐式转换
+TEST_CASE("testing Implicit conversion") {
+  yoyo::JsonValue jValue = yoyo::parserJson(jsonStr);
   auto company_location_implicit = [&jValue]() -> bool {
     std::string city = jValue["company"]["location"]["city"];
     return city == "New York";
@@ -202,8 +206,11 @@ TEST_CASE("testing the json parser") {
   CHECK(company_employees_id_implicit() == true);
   CHECK(company_financials_revenue_implicit() == true);
   CHECK(company_is_publicly_traded_implicit() == true);
+}
 
-  // 测试显式转换
+// 测试显示转换
+TEST_CASE("testing Explicit conversion") {
+  yoyo::JsonValue jValue = yoyo::parserJson(jsonStr);
   auto company_location_explicit = [&jValue]() -> bool {
     auto city = jValue["company"]["location"]["city"].asString();
     return city == "New York";
@@ -228,8 +235,10 @@ TEST_CASE("testing the json parser") {
   CHECK(company_employees_id_explicit() == true);
   CHECK(company_financials_revenue_explicit() == true);
   CHECK(company_is_publicly_traded_explicit() == true);
-
-  // 测试打印
+}
+// 测试打印输出
+TEST_CASE("testing print out") {
+  yoyo::JsonValue jValue = yoyo::parserJson(jsonStr);
   auto print_json_string = [&jValue]() -> bool {
     // yoyo::PrintJson(jValue);
     return true;
@@ -247,7 +256,6 @@ TEST_CASE("testing the json parser") {
     // yoyo::PrintJson(jValue2);
     return jValue2.size() > 0;
   };
-
   CHECK(print_json_string() == true);
   CHECK(serialize_jsonValue_toString() == true);
   CHECK(serialize_jsonValue_toString_to_deserialize() == true);
