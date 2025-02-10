@@ -260,3 +260,37 @@ TEST_CASE("testing print out") {
   CHECK(serialize_jsonValue_toString() == true);
   CHECK(serialize_jsonValue_toString_to_deserialize() == true);
 }
+
+// 测试数组添加对象
+TEST_CASE("testing add object to array") {
+  yoyo::JsonValue jValue = yoyo::parserJson(jsonStr);
+  auto add_object_to_array = [&jValue]() -> bool {
+    yoyo::JsonValue newObject;
+    newObject["name"] = "John Doe";
+    newObject["age"] = 30;
+    newObject["isMarried"] = false;
+    yoyo::PrintJson(newObject);
+    jValue["company"]["employees"].push_back(newObject);
+    return jValue["company"]["employees"].size() == 3;
+  };
+
+  auto add_object_to_array_with_move = [&jValue]() -> bool {
+    yoyo::JsonValue newObject;
+    newObject["name"] = "John Doe";
+    newObject["age"] = 30;
+    newObject["isMarried"] = false;
+    jValue["company"]["employees"].push_back(std::move(newObject));
+    return jValue["company"]["employees"].size() == 4;
+  };
+
+  auto add_object = []() -> bool {
+    yoyo::JsonValue newObject;
+    newObject["array"].push_back("yoyo");
+    yoyo::PrintJson(newObject);
+    return newObject.size() == 1;
+  };
+
+  CHECK(add_object_to_array() == true);
+  CHECK(add_object_to_array_with_move() == true);
+  CHECK(add_object() == true);
+}

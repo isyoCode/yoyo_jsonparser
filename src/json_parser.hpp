@@ -61,6 +61,10 @@ class JsonFiled {
     _jType = JSONTYPE::JSON_DOUBLE;
     _jValue = num;
   }
+  JsonFiled(const char* str) {
+    _jType = JSONTYPE::JSON_STRING;
+    _jValue = std::string(str);
+  }
   JsonFiled(std::string&& str) {
     _jType = JSONTYPE::JSON_STRING;
     _jValue = std::move(str);
@@ -238,6 +242,10 @@ class JsonFiled {
     return false;
   }
   JsonFiled& operator[](const std::string& sKey) {
+    if(isNull()){
+      _jType = JSONTYPE::JSON_OBJECT;
+      _jValue = json_object{};
+    }
     if (!isObject())
       throw std::logic_error("Current object is not k-v obj, invalid type");
     json_object& tObj = std::get<json_object>(_jValue);
@@ -267,6 +275,10 @@ class JsonFiled {
   }
 
   void push_back(JsonFiled obj) {
+    if(isNull()){
+      _jType = JSONTYPE::JSON_ARRAY;
+      _jValue = json_array{};
+    }
     if (!isArray())
       throw std::logic_error("Current object is not array, invalid type");
     json_array& tArray = std::get<json_array>(_jValue);
